@@ -772,6 +772,16 @@
 			size = <0x0 0x2800000>;
 			linux,cma-default;
 		};
+
+		ramoops: ramoops@0xA9800000 {
+			compatible = "ramoops";
+			reg = <0 0xA9800000 0 0x00400000>;
+			record-size =  <0x40000>; //256x1024
+			console-size = <0x40000>;
+			ftrace-size =  <0x40000>;
+			pmsg-size =     <0x200000>;
+			ecc-size =     <0x0>;
+		};
 	};
 
 	vendor: vendor {
