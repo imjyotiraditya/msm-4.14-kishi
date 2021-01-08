@@ -6,5 +6,4 @@ obj-y     +=  oppo_healthinfo/
 obj-y     +=  oppo_als_cali_value/
 obj-y +=  oppo_criticallog/
 obj-$(CONFIG_OPPO_SHUTDOWN_DETECT)	+=  oppo_shutdown_detect/
-obj-$(CONFIG_OPPO_PHOENIX)     +=  oppo_phoenix/
 obj-y +=  sensor/
