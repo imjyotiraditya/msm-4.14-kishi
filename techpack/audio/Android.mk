@@ -77,3 +77,8 @@ ifeq ($(call is-board-platform-in-list,msmnile),true)
 $(shell rm -rf $(PRODUCT_OUT)/obj/vendor/qcom/opensource/audio-kernel/asoc/codecs/wcd9360/Module.symvers)
 include $(MY_LOCAL_PATH)/asoc/codecs/wcd9360/Android.mk
 endif
+
+ifeq ($(call is-board-platform-in-list,msmnile),true)
+$(shell rm -rf $(PRODUCT_OUT)/obj/vendor/qcom/opensource/audio-kernel/asoc/codecs/tfa98xx-v6/Module.symvers)
+include $(MY_LOCAL_PATH)/asoc/codecs/tfa98xx-v6/Android.mk
+endif
