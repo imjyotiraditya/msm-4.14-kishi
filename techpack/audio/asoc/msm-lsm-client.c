@@ -970,6 +970,21 @@ static int msm_lsm_process_params(struct snd_pcm_substream *substream,
 		return -EINVAL;
 	}
 
+	#ifdef CONFIG_SND_LSM_APE_THIRD_PARTY
+	if (p_info != NULL) {
+		switch (p_info->param_type) {
+		case LSM_REG_SND_MODEL:
+		case LSM_DEREG_SND_MODEL:
+		case LSM_CUSTOM_PARAMS:
+			dev_err(rtd->dev,
+				"%s: Add for third party wakeup engine, don't need to set param id %d, return\n",
+				__func__, p_info->param_type);
+			return rc;
+		default:
+			break;
+		}
+	}
+	#endif /* CONFIG_SND_LSM_APE_THIRD_PARTY */
 	switch (p_info->param_type) {
 	case LSM_ENDPOINT_DETECT_THRESHOLD:
 		rc = msm_lsm_set_epd(substream, p_info);

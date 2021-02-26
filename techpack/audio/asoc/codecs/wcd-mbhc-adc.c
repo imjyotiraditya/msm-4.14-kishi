@@ -652,6 +652,7 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 	}
 	/* Find plug type */
 	output_mv = wcd_measure_adc_continuous(mbhc);
+	pr_err("%s: second check output_mv = %d\n", __func__, output_mv);
 	plug_type = wcd_mbhc_get_plug_from_adc(mbhc, output_mv);
 
 	/*

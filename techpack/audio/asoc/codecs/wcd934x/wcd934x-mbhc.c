@@ -778,6 +778,8 @@ static void tavil_mbhc_gnd_det_ctrl(struct snd_soc_codec *codec, bool enable)
 	}
 }
 
+bool g_enable_usbc_analog = false;
+
 static void tavil_mbhc_hph_pull_down_ctrl(struct snd_soc_codec *codec,
 					  bool enable)
 {
@@ -787,10 +789,12 @@ static void tavil_mbhc_hph_pull_down_ctrl(struct snd_soc_codec *codec,
 		snd_soc_update_bits(codec, WCD934X_HPH_PA_CTL2,
 				    0x10, 0x10);
 	} else {
-		snd_soc_update_bits(codec, WCD934X_HPH_PA_CTL2,
+		if(g_enable_usbc_analog){
+			snd_soc_update_bits(codec, WCD934X_HPH_PA_CTL2,
 				    0x40, 0x00);
-		snd_soc_update_bits(codec, WCD934X_HPH_PA_CTL2,
+			snd_soc_update_bits(codec, WCD934X_HPH_PA_CTL2,
 				    0x10, 0x00);
+		}
 	}
 }
 static void tavil_mbhc_moisture_config(struct wcd_mbhc *mbhc)
@@ -1058,6 +1062,7 @@ int tavil_mbhc_post_ssr_init(struct wcd934x_mbhc *mbhc,
 		snd_soc_update_bits(codec, WCD934X_MBHC_NEW_CTL_1, 0x04, 0x04);
 		snd_soc_update_bits(codec, WCD934X_MBHC_CTL_BCS, 0x01, 0x01);
 	}
+	g_enable_usbc_analog = mbhc->wcd_mbhc.mbhc_cfg->enable_usbc_analog;
 
 done:
 	return ret;

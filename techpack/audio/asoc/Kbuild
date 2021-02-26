@@ -179,6 +179,8 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 
 KBUILD_CPPFLAGS += $(CDEFINES)
 
+CDEFINES += -DOPPO_TFA_CAPTURE_VI_FEEDBACK
+
 # Currently, for versions of gcc which support it, the kernel Makefile
 # is disabling the maybe-uninitialized warning.  Re-enable it for the
 # AUDIO driver.  Note that we must use EXTRA_CFLAGS here so that it

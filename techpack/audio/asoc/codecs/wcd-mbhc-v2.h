@@ -423,6 +423,13 @@ enum mbhc_moisture_rref {
 	R_184_KOHM,
 };
 
+enum usbc_switch_type {
+    NO_USBC_SWITCH = 0,
+    FSA4480,
+    MAX20328,
+    USBC_SWITCH_MAX = MAX20328,
+};
+
 struct wcd_mbhc_config {
 	bool read_fw_bin;
 	void *calibration;
@@ -438,6 +445,7 @@ struct wcd_mbhc_config {
 	int anc_micbias;
 	bool enable_anc_mic_detect;
 	u32 enable_usbc_analog;
+	enum usbc_switch_type switch_type;
 	bool moisture_duty_cycle_en;
 };
 
