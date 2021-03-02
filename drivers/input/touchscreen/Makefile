@@ -108,3 +108,5 @@ obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
 obj-$(CONFIG_TOUCHSCREEN_ST)		+= st/
 obj-$(CONFIG_TOUCHSCREEN_HIMAX_CHIPSET)	+= hxchipset/
 obj-$(CONFIG_TOUCHSCREEN_SYNAPTICS_TCM)	+= synaptics_tcm/
+obj-$(CONFIG_TOUCHPANEL_OPPO)		+= oppo_touchscreen/
+obj-$(CONFIG_TOUCHPANEL_OPPO)		+= touch.o
