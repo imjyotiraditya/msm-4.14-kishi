@@ -46,7 +46,7 @@
 #define CYCLES_PER_MICRO_SEC_DEFAULT 4915
 #define CCI_MAX_DELAY 1000000
 
-#define CCI_TIMEOUT msecs_to_jiffies(1500)
+#define CCI_TIMEOUT msecs_to_jiffies(3000)
 
 #define NUM_MASTERS 2
 #define NUM_QUEUES 2
@@ -68,7 +68,12 @@
 /* Max bytes that can be read per CCI read transaction */
 #define CCI_READ_MAX 256
 #define CCI_I2C_READ_MAX_RETRIES 3
+#ifndef VENDOR_EDIT
 #define CCI_I2C_MAX_READ 8192
+#else
+//add by yufeng@camera, 20190528 for read eeprom data
+#define CCI_I2C_MAX_READ 16384
+#endif
 #define CCI_I2C_MAX_WRITE 8192
 #define CCI_I2C_MAX_BYTE_COUNT 65535
 

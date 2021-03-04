@@ -21,7 +21,12 @@ struct csiphy_reg_parms_t csiphy_v1_1 = {
 	.mipi_csiphy_glbl_irq_cmd_addr = 0x828,
 	.csiphy_common_array_size = 6,
 	.csiphy_reset_array_size = 5,
+	/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+	#ifdef VENDOR_EDIT
+	.csiphy_2ph_config_array_size = 19,
+	#else
 	.csiphy_2ph_config_array_size = 14,
+	#endif
 	.csiphy_3ph_config_array_size = 43,
 	.csiphy_2ph_clock_lane = 0x1,
 	.csiphy_2ph_combo_ck_ln = 0x10,
@@ -75,6 +80,14 @@ csiphy_reg_t csiphy_2ph_v1_1_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x0038, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0060, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0064, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		#endif
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 	},
 	{
 		{0x0704, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -91,6 +104,14 @@ csiphy_reg_t csiphy_2ph_v1_1_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x0738, 0x1F, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0760, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0764, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		#endif
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 	},
 	{
 		{0x0204, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -107,6 +128,14 @@ csiphy_reg_t csiphy_2ph_v1_1_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x0238, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0260, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0264, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		#endif
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 	},
 	{
 		{0x0404, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -123,6 +152,14 @@ csiphy_reg_t csiphy_2ph_v1_1_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x0438, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0460, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0464, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		#endif
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 	},
 	{
 		{0x0604, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -139,12 +176,27 @@ csiphy_reg_t csiphy_2ph_v1_1_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 		{0x0638, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0660, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0664, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		#endif
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 	},
 };
 
 struct csiphy_reg_t
 	csiphy_2ph_v1_1_combo_mode_reg[MAX_LANES][MAX_SETTINGS_PER_LANE] = {
 	{
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0024, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0900, 0x05, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0908, 0x10, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0904, 0x03, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0004, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x002C, 0x01, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0034, 0x07, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -157,10 +209,22 @@ struct csiphy_reg_t
 		{0x000C, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 		{0x0010, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0038, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0060, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#else
 		{0x0060, 0x31, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0064, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
+		#ifdef VENDOR_EDIT
+		{0x0724, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0C80, 0x05, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0C88, 0x10, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0C84, 0x03, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0704, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x072C, 0x01, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0734, 0x07, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -173,10 +237,22 @@ struct csiphy_reg_t
 		{0x070C, 0xA5, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0710, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0738, 0x1F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0760, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#else
 		{0x0760, 0x31, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0764, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
+		#ifdef VENDOR_EDIT
+		{0x0224, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0A00, 0x05, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0A08, 0x10, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0A04, 0x03, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0204, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x022C, 0x01, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0234, 0x07, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -189,14 +265,26 @@ struct csiphy_reg_t
 		{0x020C, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 		{0x0210, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0238, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0260, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#else
 		{0x0260, 0x31, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0264, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
+		#ifdef VENDOR_EDIT
+		{0x0424, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		{0x0B00, 0x05, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0B08, 0x10, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0B04, 0x03, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0404, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x042C, 0x01, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0434, 0x07, 0x00, CSIPHY_DEFAULT_PARAMS},
-		{0x041C, 0x08, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x041C, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0414, 0x60, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0428, 0x0A, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x043C, 0xB8, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -205,10 +293,22 @@ struct csiphy_reg_t
 		{0x040C, 0x00, 0x00, CSIPHY_DNP_PARAMS},
 		{0x0410, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0438, 0xFE, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0418, 0x02, 0x00, CSIPHY_DEFAULT_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0460, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#else
 		{0x0460, 0x31, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0464, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 	{
+		#ifdef VENDOR_EDIT
+		{0x0624, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0C00, 0x05, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0C08, 0x10, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0C04, 0x03, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0604, 0x0C, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x062C, 0x01, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0634, 0x07, 0x00, CSIPHY_DEFAULT_PARAMS},
@@ -221,7 +321,13 @@ struct csiphy_reg_t
 		{0x060C, 0xA5, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0610, 0x52, 0x00, CSIPHY_DEFAULT_PARAMS},
 		{0x0638, 0x1F, 0x00, CSIPHY_DEFAULT_PARAMS},
+		{0x0000, 0x00, 0x00, CSIPHY_DNP_PARAMS},
+		/*WangChao@RM.Camera modify to fix combo mode issue,case id 04364006 04019376*/
+		#ifdef VENDOR_EDIT
+		{0x0660, 0x00, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#else
 		{0x0660, 0x31, 0x00, CSIPHY_DEFAULT_PARAMS},
+		#endif
 		{0x0664, 0x7F, 0x00, CSIPHY_DEFAULT_PARAMS},
 	},
 };

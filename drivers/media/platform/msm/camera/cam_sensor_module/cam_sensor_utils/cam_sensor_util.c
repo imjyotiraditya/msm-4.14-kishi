@@ -14,6 +14,11 @@
 #include "cam_sensor_util.h"
 #include <cam_mem_mgr.h>
 #include "cam_res_mgr_api.h"
+#ifdef VENDOR_EDIT
+/*haiqing.zheng@Cam.Drv 20191217 add for front mater and aux sensor use same gpio 29 on mclk*/
+#include <soc/oppo/oppo_project.h>
+#endif
+
 
 #define CAM_SENSOR_PINCTRL_STATE_SLEEP "cam_suspend"
 #define CAM_SENSOR_PINCTRL_STATE_DEFAULT "cam_default"
@@ -823,8 +828,14 @@ int cam_sensor_util_request_gpio_table(
 				 * apply new gpios, outout a error message
 				 * for driver bringup debug
 				 */
-				CAM_ERR(CAM_SENSOR, "gpio %d:%s request fails",
-					gpio_tbl[i].gpio, gpio_tbl[i].label);
+#ifdef VENDOR_EDIT
+/*haiqing.zheng@Cam.Drv 20191217 add for front mater and aux sensor use same gpio 29 on mclk*/
+				if (19696 == get_project() && 29 == gpio_tbl[i].gpio) {
+					rc = 0;
+				}
+#endif
+				CAM_ERR(CAM_SENSOR, "gpio %d:%s request fails, rc = %d",
+					gpio_tbl[i].gpio, gpio_tbl[i].label, rc);
 			}
 		}
 	} else {
