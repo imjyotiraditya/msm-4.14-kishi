@@ -124,6 +124,13 @@ struct scan_control {
 	 * on memory until last task zap it.
 	 */
 	struct vm_area_struct *target_vma;
+
+#if defined(VENDOR_EDIT) && defined(CONFIG_PROCESS_RECLAIM)
+	/* robin.ren@PSW.BSP.Kernel.Performance, 2019-03-13,
+	 * use mm_walk to regonize the behaviour of process reclaim.
+	 */
+	struct mm_walk *walk;
+#endif
 };
 
 #ifdef ARCH_HAS_PREFETCH
@@ -158,6 +165,13 @@ struct scan_control {
  * From 0 .. 100.  Higher means more swappy.
  */
 int vm_swappiness = 60;
+#ifdef VENDOR_EDIT //yixue.ge@psw.bsp.kernel 20170720 add for add direct_vm_swappiness
+/*
+ * Direct reclaim swappiness, exptct 0 - 60. Higher means more swappy and slower.
+ */
+int direct_vm_swappiness = 60;
+#endif
+
 /*
  * The total number of pages which are beyond the high watermark within all
  * zones.
@@ -166,6 +180,23 @@ unsigned long vm_total_pages;
 
 static LIST_HEAD(shrinker_list);
 static DECLARE_RWSEM(shrinker_rwsem);
+
+#ifdef VENDOR_EDIT
+//gaolong@SRC.shanghai, 2018/09/04, add pages swap callback for hypnus
+static ATOMIC_NOTIFIER_HEAD(balance_pg_notifier);
+
+int balance_pg_register_notifier(struct notifier_block *nb)
+{
+    return atomic_notifier_chain_register(&balance_pg_notifier, nb);
+}
+EXPORT_SYMBOL(balance_pg_register_notifier);
+
+int balance_pg_unregister_notifier(struct notifier_block *nb)
+{
+    return atomic_notifier_chain_unregister(&balance_pg_notifier, nb);
+}
+EXPORT_SYMBOL(balance_pg_unregister_notifier);
+#endif /* VENDOR_EDIT */
 
 #ifdef CONFIG_MEMCG
 static bool global_reclaim(struct scan_control *sc)
@@ -993,6 +1024,13 @@ static unsigned long shrink_page_list(struct list_head *page_list,
 		enum page_references references = PAGEREF_RECLAIM;
 		bool dirty, writeback;
 
+#if defined(VENDOR_EDIT) && defined(CONFIG_PROCESS_RECLAIM)
+		/* Kui.Zhang@PSW.BSP.Kernel.Performance, 2018-12-25, check whether the
+		 * reclaim process should cancel*/
+		if (sc->walk && is_reclaim_should_cancel(sc->walk))
+			break;
+#endif
+
 		cond_resched();
 
 		page = lru_to_page(page_list);
@@ -1419,8 +1457,14 @@ unsigned long reclaim_clean_pages_from_list(struct zone *zone,
 }
 
 #ifdef CONFIG_PROCESS_RECLAIM
+#ifdef VENDOR_EDIT
+/* Kui.Zhang@PSW.BSP.Kernel.Performance, 2018-12-25, record the scaned task*/
+unsigned long reclaim_pages_from_list(struct list_head *page_list,
+			struct vm_area_struct *vma, struct mm_walk *walk)
+#else
 unsigned long reclaim_pages_from_list(struct list_head *page_list,
 					struct vm_area_struct *vma)
+#endif
 {
 	struct scan_control sc = {
 		.gfp_mask = GFP_KERNEL,
@@ -1429,6 +1473,10 @@ unsigned long reclaim_pages_from_list(struct list_head *page_list,
 		.may_unmap = 1,
 		.may_swap = 1,
 		.target_vma = vma,
+#ifdef VENDOR_EDIT
+		/* Kui.Zhang@PSW.BSP.Kernel.Performance, 2018-12-25, record the scaned task*/
+		.walk = walk,
+#endif
 	};
 
 	unsigned long nr_reclaimed;
@@ -1682,7 +1730,13 @@ int isolate_lru_page(struct page *page)
 	int ret = -EBUSY;
 
 	VM_BUG_ON_PAGE(!page_count(page), page);
+#if defined(VENDOR_EDIT) && defined(CONFIG_PROCESS_RECLAIM)
+	/* Kui.Zhang@PSW.TEC.Kernel.Performance, 2019-01-08, Because process reclaim is doing page by
+	 * page, so there many compound pages are relcaimed, so too many warning msg on this case. */
+	WARN_RATELIMIT((!current_is_reclaimer() && PageTail(page)), "trying to isolate tail page");
+#else
 	WARN_RATELIMIT(PageTail(page), "trying to isolate tail page");
+#endif
 
 	if (PageLRU(page)) {
 		struct zone *zone = page_zone(page);
@@ -1834,6 +1888,24 @@ static int current_may_throttle(void)
 		bdi_write_congested(current->backing_dev_info);
 }
 
+#ifdef VENDOR_EDIT
+/*Huacai.Zhou@PSW.BSP.Kernel.MM, 2018-04-28, fix direct reclaim slow issue*/
+extern bool is_fg(int uid);
+static inline int get_current_adj(void)
+{
+	int cur_uid;
+
+	if (current->signal->oom_score_adj < 0)
+		return 0;
+#ifdef CONFIG_OPPO_FG_OPT
+	cur_uid = current_uid().val;
+	if (is_fg(cur_uid))
+		return 0;
+#endif
+	return current->signal->oom_score_adj;
+}
+#endif /*VENDOR*/
+
 /*
  * shrink_inactive_list() is a helper for shrink_node().  It returns the number
  * of reclaimed pages
@@ -1983,8 +2055,14 @@ shrink_inactive_list(unsigned long nr_to_scan, struct lruvec *lruvec,
 	 * is congested. Allow kswapd to continue until it starts encountering
 	 * unqueued dirty pages or cycling through the LRU too quickly.
 	 */
+#ifdef VENDOR_EDIT
+/*Huacai.Zhou@PSW.BSP.Kernel.MM, 2018-04-28, fix direct reclaim slow issue*/
+	if (!sc->hibernation_mode && !current_is_kswapd() &&
+	    current_may_throttle() && get_current_adj())
+#else
 	if (!sc->hibernation_mode && !current_is_kswapd() &&
 	    current_may_throttle())
+#endif
 		wait_iff_congested(pgdat, BLK_RW_ASYNC, HZ/10);
 
 	trace_mm_vmscan_lru_shrink_inactive(pgdat->node_id,
@@ -2229,8 +2307,14 @@ static bool inactive_list_is_low(struct lruvec *lruvec, bool file,
 		inactive_ratio = 0;
 	} else {
 		gb = (inactive + active) >> (30 - PAGE_SHIFT);
+#ifdef VENDOR_EDIT
+/*Huacai.Zhou@PSW.BSP.Kernel.MM, 2018-04-28, fix direct reclaim slow issue*/
+		if (gb && file)
+			inactive_ratio = min(2UL, int_sqrt(10 * gb));
+#else
 		if (gb)
 			inactive_ratio = int_sqrt(10 * gb);
+#endif /*VENDOR_EDIT*/
 		else
 			inactive_ratio = 1;
 	}
@@ -2289,8 +2373,17 @@ static void get_scan_count(struct lruvec *lruvec, struct mem_cgroup *memcg,
 	unsigned long ap, fp;
 	enum lru_list lru;
 
+#ifdef VENDOR_EDIT //yixue.ge@psw.bsp.kernel 20170720 add for add direct_vm_swappiness
+	if (!current_is_kswapd()) {
+		swappiness = direct_vm_swappiness;
+	}
+#endif
 	/* If we have no swap space, do not bother scanning anon pages. */
+#ifndef VENDOR_EDIT //yixue.ge@psw.bsp.kernel.driver 20170810 modify for reserver some zram disk size
 	if (!sc->may_swap || mem_cgroup_get_nr_swap_pages(memcg) <= 0) {
+#else
+	if (!sc->may_swap || (mem_cgroup_get_nr_swap_pages(memcg) <= total_swap_pages>>6)) {
+#endif
 		scan_balance = SCAN_FILE;
 		goto out;
 	}
@@ -3580,7 +3673,10 @@ static void kswapd_try_to_sleep(pg_data_t *pgdat, int alloc_order, int reclaim_o
 		 * allocation of the requested order possible.
 		 */
 		wakeup_kcompactd(pgdat, alloc_order, classzone_idx);
-
+#ifdef VENDOR_EDIT
+		atomic_notifier_call_chain(&balance_pg_notifier,
+				BALANCE_PG_END, NULL);
+#endif /* VENDOR_EDIT */
 		remaining = schedule_timeout(HZ/10);
 
 		/*
@@ -3711,6 +3807,11 @@ kswapd_try_sleep:
 		 */
 		trace_mm_vmscan_kswapd_wake(pgdat->node_id, classzone_idx,
 						alloc_order);
+#ifdef VENDOR_EDIT
+		if (alloc_order > MIN_ORDER_NOTIFY_HYPNUS)
+			atomic_notifier_call_chain(&balance_pg_notifier,
+					BALANCE_PG_BEGIN, NULL);
+#endif
 		fs_reclaim_acquire(GFP_KERNEL);
 		reclaim_order = balance_pgdat(pgdat, alloc_order, classzone_idx);
 		fs_reclaim_release(GFP_KERNEL);
