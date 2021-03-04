@@ -72,6 +72,7 @@
 
 #include <trace/events/sched.h>
 
+
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
@@ -1687,6 +1688,7 @@ static int exec_binprm(struct linux_binprm *bprm)
 
 	return ret;
 }
+
 
 /*
  * sys_execve() executes a new program.
