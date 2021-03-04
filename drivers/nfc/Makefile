@@ -2,6 +2,7 @@
 #
 # Makefile for nfc devices
 #
+$(warning android\kernel\msm-4.14\drivers\nfc makefile enter)
 
 obj-$(CONFIG_NFC_FDP)		+= fdp/
 obj-$(CONFIG_NFC_PN544)		+= pn544/
@@ -19,3 +20,7 @@ obj-$(CONFIG_NFC_S3FWRN5)	+= s3fwrn5/
 obj-$(CONFIG_NFC_ST95HF)	+= st95hf/
 obj-$(CONFIG_NFC_NQ)		+= nq-nci.o
 obj-$(CONFIG_NTAG_NQ)		+= nq-ntag.o
+obj-$(CONFIG_NFC_PN553_DEVICES)		+= pn553-i2c/
+obj-$(CONFIG_NXP_P73_DEVICES)		+= p73-spi/
+
+$(warning android\kernel\msm-4.14\drivers\nfc makefile exit)
