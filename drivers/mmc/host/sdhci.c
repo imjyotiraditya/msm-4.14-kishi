@@ -81,8 +81,23 @@ static void sdhci_dump_state(struct sdhci_host *host)
 		mmc->parent->power.disable_depth);
 }
 
+#ifdef VENDOR_EDIT 
+//yixue.ge@BSP.drv 2014-06-04 modify for disable sdcard log
+#ifndef CONFIG_OPPO_DAILY_BUILD
+static int flag = 0;
+#endif
+#endif
 void sdhci_dumpregs(struct sdhci_host *host)
 {
+#ifdef VENDOR_EDIT 
+//yixue.ge@BSP.drv 2014-06-04 modify for disable sdcard log
+#ifndef CONFIG_OPPO_DAILY_BUILD
+	if(!flag)
+		flag++;
+	else
+		return;
+#endif
+#endif
 	MMC_TRACE(host->mmc,
 		"%s: 0x04=0x%08x 0x06=0x%08x 0x0E=0x%08x 0x30=0x%08x 0x34=0x%08x 0x38=0x%08x\n",
 		__func__,
@@ -1805,6 +1820,20 @@ static bool sdhci_check_state(struct sdhci_host *host)
 	else
 		return false;
 }
+
+#ifdef VENDOR_EDIT
+//jie.cheng@swdp.shanghai, 2016-08-10 Add emmc scaling control api
+bool sdhci_check_pwr(struct mmc_host *mmc)
+{
+	struct sdhci_host *host = mmc_priv(mmc);
+	if (!host->pwr) {
+		pr_err("sdhci pwr is 0! clk is %d\n", host->clock);
+		return true;
+	} else
+		return false;
+}
+EXPORT_SYMBOL(sdhci_check_pwr);
+#endif
 
 static bool sdhci_check_auto_tuning(struct sdhci_host *host,
 				  struct mmc_command *cmd)
