@@ -27,7 +27,27 @@
 
 #include "qrtr.h"
 
+#ifdef VENDOR_EDIT
+//Huaqiu.Lin@PSW.CN.GPS.Power.QMI.1919976, 2019/06/01,
+//Adding for Qualcomm's patch 2432846: Add pm_wakup_event() to abort the suspend when a packet is received
+#include <linux/proc_fs.h>
+#include <linux/fcntl.h>
+
+#define ENABLE_WAKE_UP 1
+#define ONLY_GPS_WAKE_UP 2
+#define GPS_QRTR_SERVICE_ID 0x10
+#define INVALID_PORT 0xff
+#endif /* VENDOR_EDIT */
+
 #define QRTR_LOG_PAGE_CNT 4
+//yangmingjin@BSP.POWER.Basic 2019/05/30 add for RM_TAG_POWER_DEBUG
+#ifdef VENDOR_EDIT
+static int ipc_router_debug_mask = 0;
+
+void set_ipc_router_debug_mask(int debug_mask){
+	ipc_router_debug_mask = !!debug_mask;
+};
+#endif
 #define QRTR_INFO(ctx, x, ...)				\
 	ipc_log_string(ctx, x, ##__VA_ARGS__)
 
@@ -327,6 +347,52 @@ static inline int kref_put_rwsem_lock(struct kref *kref,
 	}
 	return 0;
 }
+
+#ifdef VENDOR_EDIT
+//Huaqiu.Lin@PSW.CN.GPS.Power.QMI.1919976, 2019/06/01,
+//Adding for Qualcomm's patch 2432846: Add pm_wakup_event() to abort the suspend when a packet is received
+static int gps_wakeup = 0;
+
+static ssize_t gps_wakeup_proc_write(struct file *file, const char __user *buf,
+		                            size_t count,loff_t *off) {
+    //addr write code
+    int ret = 0;
+    char buffer[64] = {0};
+
+    if (count > 64) {
+       count = 64;
+    }
+
+    if (copy_from_user(buffer, buf, count)) {
+		printk("%s: read proc input error.\n", __func__);
+		return count;
+    }
+
+    // translate to integer.
+    ret = sscanf(buffer, "%d", &gps_wakeup);
+    if (ret <= 0) {
+	    printk("%s: input error\n", __func__);
+	    return count;
+    }
+
+    printk("gps_wakeup = %d \n", gps_wakeup);
+	return count;
+}
+
+static ssize_t gps_wakeup_proc_read(struct file *file, char __user *buf,
+    size_t count,loff_t *off){
+    return 0;
+}
+
+static struct file_operations gps_wakeup_proc_fops = {
+    .read = gps_wakeup_proc_read,
+    .write = gps_wakeup_proc_write,
+};
+
+static int GetGpsWakeRus() {
+    return gps_wakeup;
+}
+#endif /* VENDOR_EDIT */
 
 /* Release node resources and free the node.
  *
@@ -708,6 +774,12 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 	int frag = false;
 	unsigned int ver;
 	size_t hdrlen;
+	#ifdef VENDOR_EDIT
+	//Huaqiu.Lin@PSW.CN.GPS.Power.QMI.1919976, 2019/06/01,
+	//Adding for Qualcomm's patch 2432846: Add pm_wakup_event() to abort the suspend when a packet is received
+	struct qrtr_ctrl_pkt *pkt;
+	static __le32 src_port = INVALID_PORT;
+	#endif /* VENDOR_EDIT */
 
 	if (len & 3)
 		return -EINVAL;
@@ -783,6 +855,41 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 	} else {
 		skb_put_data(skb, data + hdrlen, size);
 	}
+
+	#ifdef VENDOR_EDIT
+	//Huaqiu.Lin@PSW.CN.GPS.Power.QMI.1919976, 2019/06/01,
+	//Adding for Qualcomm's patch 2432846: Add pm_wakup_event() to abort the suspend when a packet is received
+	if (node->ws && node->nid == 0) {
+		switch (cb->type) {
+		case QRTR_TYPE_DATA:
+			if (GetGpsWakeRus() & ENABLE_WAKE_UP) {
+				if (GetGpsWakeRus() & ONLY_GPS_WAKE_UP){
+					if (cb->src_port == src_port) {
+						__pm_wakeup_event(node->ws, 0);
+					}
+				} else {
+					__pm_wakeup_event(node->ws, 0);
+				}
+			}
+			break;
+		case QRTR_TYPE_NEW_SERVER:
+			pkt = (void *)skb->data;
+			//Location service of id is 0x10
+			if (le32_to_cpu(pkt->server.service) ==
+			   GPS_QRTR_SERVICE_ID) {
+				src_port = le32_to_cpu(pkt->server.port);
+				__pm_wakeup_event(node->ws, 0);
+			}
+			break;
+		case QRTR_TYPE_DEL_SERVER:
+			pkt = (void *)skb->data;
+			if (le32_to_cpu(pkt->server.service) ==
+				GPS_QRTR_SERVICE_ID)
+				src_port = INVALID_PORT;
+			break;
+		}
+	}
+	#endif /* VENDOR_EDIT */
 	qrtr_log_rx_msg(node, skb);
 
 	skb_queue_tail(&node->rx_queue, skb);
@@ -1916,6 +2023,12 @@ static int __init qrtr_proto_init(void)
 	}
 
 	rtnl_register(PF_QIPCRTR, RTM_NEWADDR, qrtr_addr_doit, NULL, 0);
+
+    #ifdef VENDOR_EDIT
+    //Huaqiu.Lin@PSW.CN.GPS.Power.QMI.1919976, 2019/06/01,
+    //Adding for Qualcomm's patch 2432846: Add pm_wakup_event() to abort the suspend when a packet is received
+	proc_create("gpswakeup", S_IRWXUGO, NULL, &gps_wakeup_proc_fops);
+    #endif /* VENDOR_EDIT */
 
 	return 0;
 }
