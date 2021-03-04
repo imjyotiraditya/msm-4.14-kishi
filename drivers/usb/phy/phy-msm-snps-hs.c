@@ -35,6 +35,12 @@
 #define OPMODE_NONDRIVING			(0x1 << 3)
 #define SLEEPM					BIT(0)
 
+#define OPMODE_NORMAL (0x00)
+#define TERMSEL BIT(5)
+
+#define USB2_PHY_USB_PHY_UTMI_CTRL1 (0x40)
+#define XCVRSEL BIT(0)
+
 #define USB2_PHY_USB_PHY_UTMI_CTRL5		(0x50)
 #define POR					BIT(1)
 
@@ -88,6 +94,29 @@
 #define USB_HSPHY_1P8_HPM_LOAD			19000	/* uA */
 
 #define USB_HSPHY_VDD_HPM_LOAD			30000	/* uA */
+#ifdef VENDOR_EDIT
+/* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram  */
+
+#define QUSB2PHY_PORT_TUNE1 0x6c    // PARAMETER_OVERRIDE_X0
+#define QUSB2PHY_PORT_TUNE2 0x70    // PARAMETER_OVERRIDE_X1
+#define QUSB2PHY_PORT_TUNE3 0x74    // PARAMETER_OVERRIDE_X2
+#define QUSB2PHY_PORT_TUNE4 0x78    // PARAMETER_OVERRIDE_X3
+
+unsigned int dev_phy_tune1 = 0x66;
+module_param(dev_phy_tune1, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_tune1, "QUSB PHY v2 TUNE1");
+unsigned int dev_phy_tune2 = 0x2D;
+module_param(dev_phy_tune2, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_tune2, "QUSB PHY v2 TUNE2");
+
+unsigned int dev_phy_tune3 = 0x1C;
+module_param(dev_phy_tune3, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_tune3, "QUSB PHY v2 TUNE1");
+unsigned int dev_phy_tune4 = 0;
+module_param(dev_phy_tune4, uint, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(dev_phy_tune4, "QUSB PHY v2 TUNE2");
+
+#endif
 
 struct msm_hsphy {
 	struct usb_phy		phy;
@@ -372,6 +401,36 @@ static int msm_hsphy_emu_init(struct usb_phy *uphy)
 	return 0;
 }
 
+#ifdef VENDOR_EDIT
+/* tongfeng.Huang@BSP.CHG.Basic, 2018/09/06,  Add for 18181 usb eye diagram  */
+static void hsusb_phy_read_seq(void __iomem *base, u32 *seq, int cnt,
+		unsigned long delay)
+{
+	///int i;
+	u32 tmp = 0;
+
+	pr_debug(" hsusb_phy_read_seq Seq count:%d\n", cnt);
+
+	tmp = readl_relaxed(base + QUSB2PHY_PORT_TUNE1);
+	pr_err("11 value: 0x%02x addr: 0x%02x\n", tmp, QUSB2PHY_PORT_TUNE1);
+	if (delay)
+		usleep_range(delay, (delay + 2000));
+
+	tmp = readl_relaxed(base + QUSB2PHY_PORT_TUNE2);
+	pr_err("22 value: 0x%02x addr: 0x%02x\n", tmp, QUSB2PHY_PORT_TUNE2);
+	if (delay)
+		usleep_range(delay, (delay + 2000));
+
+	tmp = readl_relaxed(base + QUSB2PHY_PORT_TUNE3);
+	pr_err("33 value: 0x%02x addr: 0x%02x\n", tmp, QUSB2PHY_PORT_TUNE3);
+	if (delay)
+		usleep_range(delay, (delay + 2000));
+
+	tmp = readl_relaxed(base + QUSB2PHY_PORT_TUNE4);
+	pr_err("44 value: 0x%02x addr: 0x%02x\n", tmp, QUSB2PHY_PORT_TUNE4);
+}
+#endif
+
 static int msm_hsphy_init(struct usb_phy *uphy)
 {
 	struct msm_hsphy *phy = container_of(uphy, struct msm_hsphy, phy);
@@ -467,7 +526,30 @@ static int msm_hsphy_init(struct usb_phy *uphy)
 		dev_dbg(uphy->dev, "rcal_mask:%08x reg:%pK code:%08x\n",
 				phy->rcal_mask, phy->phy_rcal_reg, rcal_code);
 	}
-
+#ifdef VENDOR_EDIT
+/* tongfeng.Huang@BSP.CHG.Basic, 2018/02/11,  Add for USB */
+	/*add for dynamic change tune settings*/
+	/* If phy_tune1 modparam set, override tune1 value */
+	if (dev_phy_tune1) {
+		pr_err("%s():oppo (modparam) TUNE1 val:0x%02x\n", __func__, dev_phy_tune1);
+		writel_relaxed(dev_phy_tune1, phy->base + QUSB2PHY_PORT_TUNE1);
+	}
+	/* If phy_tune2 modparam set, override tune2 value */
+	if (dev_phy_tune2) {
+		pr_err("%s():oppo (modparam) TUNE2 val:0x%02x\n", __func__, dev_phy_tune2);
+		writel_relaxed(dev_phy_tune2, phy->base + QUSB2PHY_PORT_TUNE2);
+	}
+	/* If phy_tune3 modparam set, override tune3 value */
+	if (dev_phy_tune3) {
+		pr_err("%s():oppo (modparam) TUNE3 val:0x%02x\n", __func__, dev_phy_tune3);
+		writel_relaxed(dev_phy_tune3, phy->base + QUSB2PHY_PORT_TUNE3);
+	}
+	/* If phy_tune4 modparam set, override tune4 value */
+	if (dev_phy_tune4) {
+		pr_err("%s():oppo (modparam) TUNE4 val:0x%02x\n", __func__, dev_phy_tune4);
+		writel_relaxed(dev_phy_tune4, phy->base + QUSB2PHY_PORT_TUNE4);
+	}
+#endif /* VENDOR_EDIT */
 	/*
 	 * Use external resistor value only if:
 	 * a. It is present and
@@ -496,6 +578,12 @@ static int msm_hsphy_init(struct usb_phy *uphy)
 	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_CFG0,
 				UTMI_PHY_CMN_CTRL_OVERRIDE_EN, 0);
 
+#ifdef VENDOR_EDIT
+	/* tongfeng.Huang@BSP.CHG.Basic, 2018/02/11,  Add for USB */
+	hsusb_phy_read_seq(phy->base, phy->param_override_seq,
+				phy->param_override_seq_cnt, 0);
+	pr_debug("hsusb_phy_read_seq again  end\n");
+#endif
 	return 0;
 }
 
@@ -559,6 +647,62 @@ static int msm_hsphy_notify_disconnect(struct usb_phy *uphy,
 
 	phy->cable_connected = false;
 
+	return 0;
+}
+
+static int msm_hsphy_drive_dp_pulse(struct usb_phy *uphy,
+	unsigned int interval_ms)
+{
+	struct msm_hsphy *phy = container_of(uphy, struct msm_hsphy, phy);
+	int ret;
+
+	ret = msm_hsphy_enable_power(phy, true);
+	if (ret < 0) {
+		dev_dbg(uphy->dev, "dpdm regulator enable failed:%d\n", ret);
+		return ret;
+	}
+	msm_hsphy_enable_clocks(phy, true);
+
+	/* set UTMI_PHY_CMN_CNTRL_OVERRIDE_EN &
+	* UTMI_PHY_DATAPATH_CTRL_OVERRIDE_EN
+	*/
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_CFG0,
+		UTMI_PHY_CMN_CTRL_OVERRIDE_EN,
+		UTMI_PHY_CMN_CTRL_OVERRIDE_EN);
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_CFG0,
+		UTMI_PHY_DATAPATH_CTRL_OVERRIDE_EN,
+		UTMI_PHY_DATAPATH_CTRL_OVERRIDE_EN);
+	/* set OPMODE to normal i.e. 0x0 & termsel to fs */
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_UTMI_CTRL0,
+		OPMODE_MASK, OPMODE_NORMAL);
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_UTMI_CTRL0,
+		TERMSEL, TERMSEL);
+	/* set XCVRSEL to fs */
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_UTMI_CTRL1,
+		XCVRSEL, XCVRSEL);
+	msleep(interval_ms);
+	/* clear TERMSEL to fs */
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_UTMI_CTRL0,
+		TERMSEL, 0x00);
+	/* clear XCVRSEL */
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_UTMI_CTRL1,
+		XCVRSEL, 0x00);
+
+	/* clear UTMI_PHY_CMN_CNTRL_OVERRIDE_EN &
+	* UTMI_PHY_DATAPATH_CTRL_OVERRIDE_EN
+	*/
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_CFG0,
+		UTMI_PHY_CMN_CTRL_OVERRIDE_EN, 0x00);
+	msm_usb_write_readback(phy->base, USB2_PHY_USB_PHY_CFG0,
+		UTMI_PHY_DATAPATH_CTRL_OVERRIDE_EN, 0x00);
+
+	msleep(20);
+
+	msm_hsphy_enable_clocks(phy, false);
+	ret = msm_hsphy_enable_power(phy, false);
+	if (ret < 0) {
+		dev_dbg(uphy->dev, "dpdm regulator disable failed:%d\n", ret);
+	}
 	return 0;
 }
 
@@ -880,7 +1024,7 @@ static int msm_hsphy_probe(struct platform_device *pdev)
 	phy->phy.notify_connect		= msm_hsphy_notify_connect;
 	phy->phy.notify_disconnect	= msm_hsphy_notify_disconnect;
 	phy->phy.type			= USB_PHY_TYPE_USB2;
-
+	phy->phy.drive_dp_pulse = msm_hsphy_drive_dp_pulse;
 	ret = usb_add_phy_dev(&phy->phy);
 	if (ret)
 		return ret;

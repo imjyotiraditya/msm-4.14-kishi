@@ -16,7 +16,7 @@
 #include <linux/device.h>
 
 struct usbpd;
-
+extern int pd_get_vbat_num_flag(void);
 #if IS_ENABLED(CONFIG_USB_PD_POLICY)
 struct usbpd *usbpd_create(struct device *parent);
 void usbpd_destroy(struct usbpd *pd);
