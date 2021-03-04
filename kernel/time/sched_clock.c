@@ -286,8 +286,11 @@ int sched_clock_suspend(void)
 
 	suspend_ns = rd->epoch_ns;
 	suspend_cycles = rd->epoch_cyc;
+//yangmingjin@BSP.POWER.Basic 2019/05/30 delete for RM_TAG_POWER_DEBUG
+#ifndef VENDOR_EDIT
 	pr_info("suspend ns:%17llu	suspend cycles:%17llu\n",
 				rd->epoch_ns, rd->epoch_cyc);
+#endif /* VENDOR_EDIT */
 	hrtimer_cancel(&sched_clock_timer);
 	rd->read_sched_clock = suspended_sched_clock_read;
 
@@ -300,7 +303,10 @@ void sched_clock_resume(void)
 
 	rd->epoch_cyc = cd.actual_read_sched_clock();
 	resume_cycles = rd->epoch_cyc;
+//yangmingjin@BSP.POWER.Basic 2019/05/30 delete for RM_TAG_POWER_DEBUG
+#ifndef VENDOR_EDIT
 	pr_info("resume cycles:%17llu\n", rd->epoch_cyc);
+#endif /* VENDOR_EDIT */
 	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
 	rd->read_sched_clock = cd.actual_read_sched_clock;
 }
