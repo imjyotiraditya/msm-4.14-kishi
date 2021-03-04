@@ -55,6 +55,7 @@
 #include <trace/events/almk.h>
 #include <linux/show_mem_notifier.h>
 
+
 #ifdef CONFIG_HIGHMEM
 #define _ZONE ZONE_HIGHMEM
 #else
@@ -63,6 +64,7 @@
 
 #define CREATE_TRACE_POINTS
 #include "trace/lowmemorykiller.h"
+
 
 /* to enable lowmemorykiller */
 static int enable_lmk = 1;
@@ -192,7 +194,6 @@ static int lmk_vmpressure_notifier(struct notifier_block *nb,
 			total_swapcache_pages();
 		other_free = global_zone_page_state(NR_FREE_PAGES);
 
-		atomic_set(&shift_adj, 1);
 		trace_almk_vmpressure(pressure, other_free, other_file);
 	} else if (pressure >= 90) {
 		if (lowmem_adj_size < array_size)
@@ -453,6 +454,7 @@ static int get_minfree_scalefactor(gfp_t gfp_mask)
 	return max_t(int, 1, mult_frac(100, nr_usable, totalram_pages));
 }
 
+
 static void mark_lmk_victim(struct task_struct *tsk)
 {
 	struct mm_struct *mm = tsk->mm;
@@ -653,8 +655,8 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 			(long)(PAGE_SIZE / 1024),
 			sc->gfp_mask);
 
+
 		if (lowmem_debug_level >= 2 && selected_oom_score_adj == 0) {
-			show_mem(SHOW_MEM_FILTER_NODES, NULL);
 			show_mem_call_notifiers();
 			dump_tasks(NULL, NULL);
 		}
@@ -684,6 +686,7 @@ static unsigned long lowmem_scan(struct shrinker *s, struct shrink_control *sc)
 		mutex_unlock(&scan_mutex);
 	return rem;
 }
+
 
 static int lmk_hotplug_callback(struct notifier_block *self,
 				unsigned long action, void *arg)
@@ -718,11 +721,13 @@ static int __init lowmem_init(void)
 {
 	register_shrinker(&lowmem_shrinker);
 	vmpressure_notifier_register(&lmk_vmpr_nb);
+
 	if (register_hotmemory_notifier(&lmk_memory_callback_nb))
 		lowmem_print(1, "Registering memory hotplug notifier failed\n");
 	return 0;
 }
 device_initcall(lowmem_init);
+
 
 #ifdef CONFIG_ANDROID_LOW_MEMORY_KILLER_AUTODETECT_OOM_ADJ_VALUES
 static short lowmem_oom_adj_to_oom_score_adj(short oom_adj)
@@ -818,4 +823,5 @@ module_param_array_named(minfree, lowmem_minfree, uint, &lowmem_minfree_size,
 			 S_IRUGO | S_IWUSR);
 module_param_named(debug_level, lowmem_debug_level, uint, S_IRUGO | S_IWUSR);
 module_param_named(lmk_fast_run, lmk_fast_run, int, S_IRUGO | S_IWUSR);
+
 
