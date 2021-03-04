@@ -357,6 +357,7 @@ static const struct attribute_group gpio_keys_attr_group = {
 	.attrs = gpio_keys_attrs,
 };
 
+
 static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 {
 	const struct gpio_keys_button *button = bdata->button;
@@ -378,6 +379,7 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
 		input_event(input, type, *bdata->code, state);
 	}
 	input_sync(input);
+
 }
 
 static void gpio_keys_gpio_work_func(struct work_struct *work)
