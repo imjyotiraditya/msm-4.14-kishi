@@ -14,6 +14,12 @@ enum flag_idn {
 	QUERY_FLAG_IDN_RESERVED2		= 0x07,
 	QUERY_FLAG_IDN_FPHYRESOURCEREMOVAL      = 0x08,
 	QUERY_FLAG_IDN_BUSY_RTC			= 0x09,
+#if defined(VENDOR_EDIT) && defined(CONFIG_UFSTW)
+/* Hank.liu@TECH.PLAT.Storage, 2019-10-31, add UFS+ hpb and tw driver*/
+	QUERY_FLAG_IDN_WB_EN                            = 0x0E,
+	QUERY_FLAG_IDN_WB_BUFF_FLUSH_EN                 = 0x0F,
+	QUERY_FLAG_IDN_WB_BUFF_FLUSH_DURING_HIBERN8     = 0x10,
+#endif
 };
 
 /* Attribute idn for Query requests */
@@ -37,6 +43,18 @@ enum attr_idn {
 	QUERY_ATTR_IDN_CNTX_CONF		= 0x10,
 	QUERY_ATTR_IDN_CORR_PRG_BLK_NUM		= 0x11,
 	QUERY_ATTR_IDN_REF_CLK_GATING_WAIT_TIME	= 0x17,
+#ifdef VENDOR_EDIT
+/* Hank.liu@TECH.PLAT.Storage, 2019-10-31, add UFS+ hpb and tw driver*/
+#if defined(CONFIG_UFSTW)
+	QUERY_ATTR_IDN_WB_FLUSH_STATUS	        = 0x1C,
+	QUERY_ATTR_IDN_AVAIL_WB_BUFF_SIZE       = 0x1D,
+	QUERY_ATTR_IDN_WB_BUFF_LIFE_TIME_EST    = 0x1E,
+	QUERY_ATTR_IDN_CURR_WB_BUFF_SIZE        = 0x1F,
+#endif
+#if defined(CONFIG_UFSFEATURE)
+	QUERY_ATTR_IDN_SUP_VENDOR_OPTIONS	= 0xFF,
+#endif
+#endif
 };
 
 #define QUERY_ATTR_IDN_REF_CLK_GATING_WAIT_TIME \
@@ -55,7 +73,12 @@ enum desc_idn {
 	QUERY_DESC_IDN_RFU_1		= 0x6,
 	QUERY_DESC_IDN_GEOMETRY		= 0x7,
 	QUERY_DESC_IDN_POWER		= 0x8,
+#ifdef VENDOR_EDIT
+	//xiaofan.yang@PSW.TECH.Stability, 2019/03/15,Add for check storage endurance
+	QUERY_DESC_IDN_HEALTH		= 0x9,
+#else
 	QUERY_DESC_IDN_RFU_2		= 0x9,
+#endif
 	QUERY_DESC_IDN_MAX,
 };
 

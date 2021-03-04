@@ -33,4 +33,8 @@ static inline int core_ctl_set_boost(bool boost)
 static inline void core_ctl_notifier_register(struct notifier_block *n) {}
 static inline void core_ctl_notifier_unregister(struct notifier_block *n) {}
 #endif
+#ifdef VENDOR_EDIT
+//long.gao@swdp.shanghai, 2019/06/05, add declaration
+int hypnus_set_min_max_cpus(unsigned int index, unsigned int min, unsigned int max);
+#endif /* VENDOR_EDIT */
 #endif

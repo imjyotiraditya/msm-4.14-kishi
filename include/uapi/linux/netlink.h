@@ -16,7 +16,7 @@
 #define NETLINK_SELINUX		7	/* SELinux event notifications */
 #define NETLINK_ISCSI		8	/* Open-iSCSI */
 #define NETLINK_AUDIT		9	/* auditing */
-#define NETLINK_FIB_LOOKUP	10	
+#define NETLINK_FIB_LOOKUP	10
 #define NETLINK_CONNECTOR	11
 #define NETLINK_NETFILTER	12	/* netfilter subsystem */
 #define NETLINK_IP6_FW		13
@@ -31,8 +31,29 @@
 #define NETLINK_SMC		22	/* SMC monitoring */
 #define NETLINK_SOCKEV		23	/* Socket Administrative Events */
 #define NETLINK_INET_DIAG	NETLINK_SOCK_DIAG
+#if defined(VENDOR_EDIT) && defined(CONFIG_OPPO_HANS)
+// Kun.Zhou@ROM.Framework, 2019/09/23, add for hans freeze manager
+#define NETLINK_OPPO_HANS       28      /* Socket for freezing solution*/
+#endif
+#ifndef VENDOR_EDIT
+//Yuan.Huang@PSW.CN.WiFi.Network.internet.1461349, 2018/06/18,
+//Add for WeChat lucky money recognition
+#define MAX_LINKS 33
+#else /* VENDOR_EDIT */
+#define NETLINK_OPPO_NF_HOOKS	32	/*OPPO netfilter hooks*/
 
-#define MAX_LINKS 32		
+//#ifdef VENDOR_EDIT
+//Junyuan.Huang@PSW.CN.WiFi.Network.internet.1197891, 2018/04/10,
+//Add code for appo sla function
+#define NETLINK_OPPO_SLA  33      /*SLA NETLINK SOCK*/
+//#endif /* VENDOR_EDIT */
+
+//#ifdef VENDOR_EDIT
+//Hailong.Liu@TECH.KERNEL.ELSA, 2019/10/18
+//elsa freeze use netlink_id = max_links - 1
+#define MAX_LINKS 37
+//#endif /* VENDOR_EDIT */
+#endif /* VENDOR_EDIT */
 
 struct sockaddr_nl {
 	__kernel_sa_family_t	nl_family;	/* AF_NETLINK	*/
