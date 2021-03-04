@@ -452,7 +452,8 @@
 		pinctrl-0 = <&qupv3_se8_i2c_active>;
 		pinctrl-1 = <&qupv3_se8_i2c_sleep>;
 		qcom,wrapper-core = <&qupv3_1>;
-		status = "disabled";
+		qcom,clk-freq-out = <100000>;
+		status = "ok";
 	};
 
 	qupv3_se9_i2c: i2c@a84000 {
@@ -600,28 +601,28 @@
 		status = "disabled";
 	};
 
-	qupv3_se10_spi: spi@a88000 {
-		compatible = "qcom,spi-geni";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		reg = <0xa88000 0x4000>;
-		reg-names = "se_phys";
-		clock-names = "se-clk", "m-ahb", "s-ahb";
-		clocks = <&clock_gcc GCC_QUPV3_WRAP1_S2_CLK>,
-			<&clock_gcc GCC_QUPV3_WRAP_1_M_AHB_CLK>,
-			<&clock_gcc GCC_QUPV3_WRAP_1_S_AHB_CLK>;
-		pinctrl-names = "default", "sleep";
-		pinctrl-0 = <&qupv3_se10_spi_active>;
-		pinctrl-1 = <&qupv3_se10_spi_sleep>;
-		interrupts = <GIC_SPI 355 0>;
-		spi-max-frequency = <50000000>;
-		qcom,wrapper-core = <&qupv3_1>;
-		dmas = <&gpi_dma1 0 2 1 64 0>,
-			<&gpi_dma1 1 2 1 64 0>;
-		dma-names = "tx", "rx";
-		status = "disabled";
-	};
-
+//	qupv3_se10_spi: spi@a88000 {
+//		compatible = "qcom,spi-geni";
+//		#address-cells = <1>;
+//		#size-cells = <0>;
+//		reg = <0xa88000 0x4000>;
+//		reg-names = "se_phys";
+//		clock-names = "se-clk", "m-ahb", "s-ahb";
+//		clocks = <&clock_gcc GCC_QUPV3_WRAP1_S2_CLK>,
+//			<&clock_gcc GCC_QUPV3_WRAP_1_M_AHB_CLK>,
+//			<&clock_gcc GCC_QUPV3_WRAP_1_S_AHB_CLK>;
+//		pinctrl-names = "default", "sleep";
+//		pinctrl-0 = <&qupv3_se10_spi_active>;
+//		pinctrl-1 = <&qupv3_se10_spi_sleep>;
+//		interrupts = <GIC_SPI 355 0>;
+//		spi-max-frequency = <50000000>;
+//		qcom,wrapper-core = <&qupv3_1>;
+//		dmas = <&gpi_dma1 0 2 1 64 0>,
+//			<&gpi_dma1 1 2 1 64 0>;
+//		dma-names = "tx", "rx";
+//		status = "disabled";
+//	};
+//
 	qupv3_se11_spi: spi@a8c000 {
 		compatible = "qcom,spi-geni";
 		#address-cells = <1>;
@@ -740,7 +741,8 @@
 		pinctrl-0 = <&qupv3_se15_i2c_active>;
 		pinctrl-1 = <&qupv3_se15_i2c_sleep>;
 		qcom,wrapper-core = <&qupv3_2>;
-		status = "disabled";
+		qcom,clk-freq-out = <100000>;
+		status = "ok";
 	};
 
 	qupv3_se16_i2c: i2c@0xa94000 {
@@ -780,7 +782,6 @@
 		pinctrl-0 = <&qupv3_se17_i2c_active>;
 		pinctrl-1 = <&qupv3_se17_i2c_sleep>;
 		qcom,wrapper-core = <&qupv3_2>;
-		status = "disabled";
 	};
 
 	qupv3_se18_i2c: i2c@0xc84000 {

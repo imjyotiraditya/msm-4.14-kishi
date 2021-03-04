@@ -20,6 +20,7 @@
 
 #include "sm8150-cdp.dtsi"
 #include "sm8150-cdp-audio-overlay.dtsi"
+#include "sm8150-oppo-audio-overlay.dtsi"
 
 / {
 	model = "CDP";
