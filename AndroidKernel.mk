@@ -200,7 +200,9 @@ $(TARGET_PREBUILT_INT_KERNEL): $(KERNEL_OUT) $(KERNEL_HEADERS_INSTALL)
 	$(MAKE) -C $(TARGET_KERNEL_SOURCE) O=$(BUILD_ROOT_LOC)$(KERNEL_OUT) INSTALL_MOD_PATH=$(BUILD_ROOT_LOC)../$(KERNEL_MODULES_INSTALL) INSTALL_MOD_STRIP=1 $(KERNEL_MAKE_ENV) ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(KERNEL_CROSS_COMPILE) $(real_cc) modules_install
 	$(mv-modules)
 	$(clean-module-folder)
+
 endif
+
 
 $(KERNEL_HEADERS_INSTALL): $(KERNEL_OUT)
 	$(hide) if [ ! -z "$(KERNEL_HEADER_DEFCONFIG)" ]; then \
@@ -232,7 +234,7 @@ $(INSTALLED_DTBIMAGE_TARGET): $(TARGET_PREBUILT_INT_KERNEL) $(INSTALLED_KERNEL_T
 	$(hide) if [ -d "$(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/vendor/" ]; then \
 			cat $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/vendor/qcom/*.dtb $(RTIC_DTB) > $@; \
 		else \
-			cat $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/qcom/*.dtb $(RTIC_DTB) > $@; \
+			cat $(KERNEL_OUT)/arch/$(KERNEL_ARCH)/boot/dts/*/*.dtb $(RTIC_DTB) > $@; \
 		fi
 
 .PHONY: kerneltags
