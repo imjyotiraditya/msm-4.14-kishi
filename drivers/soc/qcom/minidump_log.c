@@ -22,6 +22,7 @@
 #include <linux/mm.h>
 #include <linux/sched/task.h>
 
+
 static void __init register_log_buf(void)
 {
 	char **log_bufp;
@@ -162,6 +163,8 @@ void dump_stack_minidump(u64 sp)
 	if (msm_minidump_add_region(&ktsk_entry))
 		pr_err("Failed to add current task %d in Minidump\n", cpu);
 }
+
+
 
 static int __init msm_minidump_log_init(void)
 {
